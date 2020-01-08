@@ -20,6 +20,7 @@ pipeline {
       steps {
         git 'https://github.com/ajlanghorn/dvja.git'
         sh "mvn clean package"
+        recordIssues enabledForFailure: true, aggregatingResults: true, tool: checkStyle(pattern: 'checkstyle-result.xml')
       }
     }
     stage('Check dependencies') {
