@@ -19,6 +19,7 @@ pipeline {
       }
     }
     stage ('Analysis') {
+      steps {
         def mvnHome = tool 'mvn-default'
 
         sh "${mvnHome}/bin/mvn --batch-mode -V -U -e checkstyle:checkstyle pmd:pmd pmd:cpd findbugs:findbugs"
@@ -41,6 +42,7 @@ pipeline {
         publishIssues id: 'analysis', name: 'All Issues', 
             issues: [checkstyle, pmd, spotbugs], 
             filters: [includePackage('io.jenkins.plugins.analysis.*')]
+      }
     }
     stage('Publish to S3') {
       steps {
