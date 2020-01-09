@@ -197,7 +197,7 @@
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>false</failsOnError>
-                    <linkXRef>false</linkXRef>
+                    <linkXRef>true</linkXRef>
                 </configuration>
                 <executions>
                     <execution>
