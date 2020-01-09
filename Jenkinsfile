@@ -8,11 +8,8 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        git 'https://github.com/ajlanghorn/dvja.git'
+        git 'https://github.com/sppum/dvja.git'
         sh "mvn clean package"
-        recordIssues enabledForFailure: true, tool: mavenConsole(), referenceJobName: 'Plugins/warnings-ng-plugin/master'
-        recordIssues enabledForFailure: true, tools: [java(), javaDoc()], sourceCodeEncoding: 'UTF-8', referenceJobName: 'Plugins/warnings-ng-plugin/master'
-        recordIssues enabledForFailure: true, tool: checkStyle(pattern: 'target/checkstyle-result.xml'), sourceCodeEncoding: 'UTF-8', referenceJobName: 'Plugins/warnings-ng-plugin/master'
       }
     }
     stage('Check dependencies') {
@@ -20,6 +17,30 @@ pipeline {
         dependencyCheck additionalArguments: '', odcInstallation: 'Dependency-Check'
         dependencyCheckPublisher pattern: ''
       }
+    }
+    stage ('Analysis') {
+        def mvnHome = tool 'mvn-default'
+
+        sh "${mvnHome}/bin/mvn --batch-mode -V -U -e checkstyle:checkstyle pmd:pmd pmd:cpd findbugs:findbugs"
+
+        def checkstyle = scanForIssues tool: checkStyle(pattern: '**/target/checkstyle-result.xml')
+        publishIssues issues: [checkstyle]
+   
+        def pmd = scanForIssues tool: pmdParser(pattern: '**/target/pmd.xml')
+        publishIssues issues: [pmd]
+        
+        def cpd = scanForIssues tool: cpd(pattern: '**/target/cpd.xml')
+        publishIssues issues: [cpd]
+        
+        def spotbugs = scanForIssues tool: spotBugs(pattern: '**/target/findbugsXml.xml')
+        publishIssues issues: [spotbugs]
+
+        def maven = scanForIssues tool: mavenConsole()
+        publishIssues issues: [maven]
+        
+        publishIssues id: 'analysis', name: 'All Issues', 
+            issues: [checkstyle, pmd, spotbugs], 
+            filters: [includePackage('io.jenkins.plugins.analysis.*')]
     }
     stage('Publish to S3') {
       steps {
