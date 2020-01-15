@@ -1,9 +1,9 @@
 FROM openjdk:8
 MAINTAINER Abhisek Datta <abhisek@appsecco.com>
 
-RUN apt-get update
-RUN apt-get install -y mysql-client
-RUN apt-get install -y maven
+RUN apt-get update \
+    && apt-get install -y mysql-client maven \
+    && pip install --upgrade zapcli
 
 WORKDIR /app
 COPY pom.xml pom.xml
