@@ -25,7 +25,7 @@ pipeline {
     }
     stage('Scan for vulnerabilities') {
       steps {
-          sh 'java -jar target/dvja-*.war && zap-cli quick-scan --self-contained --spider -r http://127.0.0.1 && zap-cli report -o zap-report.html -f html'
+          sh 'java -jar target/dvja-*.jar && zap-cli quick-scan --self-contained --spider -r http://127.0.0.1 && zap-cli report -o zap-report.html -f html'
       }
     }
     stage('Publish to S3') {
@@ -42,7 +42,7 @@ pipeline {
   post {
     always {
       archiveArtifacts artifacts: 'zap-report.html', fingerprint: true
-      recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
+      // recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
       recordIssues enabledForFailure: true, tool: checkStyle()
       recordIssues enabledForFailure: true, tool: spotBugs()
       recordIssues enabledForFailure: true, tool: cpd(pattern: '**/target/cpd.xml')
