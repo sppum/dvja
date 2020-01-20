@@ -25,7 +25,7 @@ pipeline {
     }
     stage('Scan for vulnerabilities') {
       steps {
-          sh 'java -jar target/dvja-*.jar && zap-cli quick-scan --self-contained --spider -r http://127.0.0.1 && zap-cli report -o zap-report.html -f html'
+          sh 'mvn jetty:run && zap-cli quick-scan --self-contained --spider -r http://127.0.0.1:8080 && zap-cli report -o zap-report.html -f html'
       }
     }
     stage('Publish to S3') {
